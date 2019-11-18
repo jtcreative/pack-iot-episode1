@@ -1,0 +1,28 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <a asp-area="" asp-controller="Home" asp-action="Index">Refresh Device List</a></div>
+    <div class="col-md-3">
+        <h2>Devices</h2>
+        <table class="table">
+            <tr>
+                <th scope="col">Device Id</th>
+                <th scope="col">Device Name</th>
+                <th scope="col">Status</th>
+                <th scope="col">Last Updated</th>
+            </tr>
+            @foreach(var devices in ViewData["Devices"] as List<NewDeviceModel>)
+            {
+            <tr>
+                <td scope="row">@devices.DeviceId</td>
+                <td>@devices.DeviceName</td>
+                <td scope="row">@devices.Status</td>
+                <td>@devices.LastActivityUpdated.ToString("dddd, dd MMMM yyyy HH:mm:ss")</td>
+            </tr>
+            }
+        </table>
+    </div>
+</div>

@@ -1,0 +1,66 @@
+﻿<Page
+    x:Class="IoTDevice.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:IoTDevice"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid Background="Gray">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="80*"/>
+            <ColumnDefinition Width="20*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="70*" />
+            <RowDefinition Height="30*" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" FontWeight="Bold" Text="Thermostat Device" FontSize="38" HorizontalAlignment="Center"/>
+        <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,40,0,0">
+            <StackPanel Margin="20">
+                <TextBlock Text="Properties" Margin="0,0,0,30" FontWeight="Bold"/>
+                <TextBlock Text="Battery Level (In %)"/>
+                <TextBox x:Name="BatteryLevelInput" Margin="0,0,0,20"  Text="{x:Bind ViewModel.DeviceModel.BatteryLevel, Mode=TwoWay}"/>
+                <TextBlock Text="Temperature Set (In Degrees Celsius)"/>
+                <TextBox x:Name="TemperatureLevelInput" Margin="0,0,0,20" Text="{x:Bind ViewModel.DeviceModel.TemperatureSet, Mode=TwoWay}"/>
+                <TextBlock Text="Temperature Outside (In Degrees Celsius)"/>
+                <TextBlock x:Name="TemperatureLevelOutside" Margin="0,0,0,20" Text="{x:Bind ViewModel.DeviceModel.TemperatureOutside, Mode=TwoWay}"/>
+                <TextBlock Text="State"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,20" >
+                    <RadioButton Content="On" Name="OnRB" GroupName="StateGroup" Checked="RadioButton_Checked" />
+                    <RadioButton Content="Off" Name="OffRB" GroupName="StateGroup" IsChecked="True" Checked="RadioButton_Checked"/>
+                    <RadioButton Content="StandBy" Name="StandByRB" GroupName="StateGroup" Checked="RadioButton_Checked"/>
+                    <RadioButton Content="Alert" Name="AlertRB" GroupName="StateGroup" Checked="RadioButton_Checked"/>
+                </StackPanel>
+             
+
+
+            </StackPanel>
+            <StackPanel></StackPanel>
+        </StackPanel>
+        <StackPanel Grid.Column="1" Grid.Row="0" VerticalAlignment="Center" Margin="20,0,20,0">
+            <TextBlock Text="{x:Bind ViewModel.DeviceStatus}" FontWeight="Bold"/>
+            <TextBlock Text="{x:Bind ViewModel.DeviceIdStr }" FontWeight="Bold"/>
+            <TextBlock Text="IoT Hub Name: " FontWeight="Bold"/>
+            <TextBox Text="{x:Bind ViewModel.IoTHubName, Mode=TwoWay}" />
+            <TextBlock Text="IoT Hub Shared Access Key: " FontWeight="Bold"/>
+            <TextBox Text="{x:Bind ViewModel.IoTSharedAccessKey, Mode=TwoWay}" />
+            <Button Content="Register Device Wih IoT Hub" Margin="0,0,0,80" Click="Register_Device"/>
+            <Button Content="Send Data" Margin="0,0,0,20" Click="Send_Data" />
+            <Button Content="Simulate Low Battery Warning" Margin="0,0,0,20" Click="Simulate_Low_Battery" />
+            <Button Content="Reset Data" Margin="0,0,0,20" Click="Reset_Data" />
+        </StackPanel>
+        <ListView Grid.Row="1" Background="Black" Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{x:Bind ViewModel.Logs}">
+            <ListView.Header>
+                <TextBlock IsColorFontEnabled="True" Foreground="White" FontSize="24" FontWeight="Bold" Text="Device Logs" />
+            </ListView.Header>
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="" />
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+    </Grid>
+</Page>
