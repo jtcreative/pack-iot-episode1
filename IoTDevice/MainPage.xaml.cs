@@ -67,53 +67,44 @@ namespace IoTDevice
 
         }
 
-        private Task OnPropertyUpdate(TwinCollection desiredProperties, object userContext)
+        private async Task<Task> OnPropertyUpdate(TwinCollection desiredProperties, object userContext)
         {
-            if(desiredProperties.Contains("batteryLevel"))
-            {
-                ViewModel.DeviceModel.BatteryLevel = (int)desiredProperties["batteryLevel"];
-            }
+            var message = await DeviceClient.ReceiveAsync();
 
-            if (desiredProperties.Contains("setTemperature"))
-            {
-                ViewModel.DeviceModel.TemperatureSet = (int)desiredProperties["setTemperature"];
-            }
+            BatteryLevelInput.Text = message.Properties["batteryLevel"];
+            TemperatureLevelInput.Text = message.Properties["temperatureLevel"];
+            TemperatureLevelOutside.Text = message.Properties["temperatureLevelOutside"];
 
-            if (desiredProperties.Contains("roomTemperature"))
+            var state = message.Properties["state"];
+            if (state.Equals("On"))
             {
-                ViewModel.DeviceModel.TemperatureOutside = (int)desiredProperties["roomTemperature"];
+                OnRB.IsChecked = true;
             }
-
-            if (desiredProperties.Contains("state"))
+            else if (state.Equals("Off"))
             {
-                var state = (int)desiredProperties["roostatemTemperature"];
-                switch(state)
-                {
-                    case 0:
-                        OnRB.IsChecked = true;
-                        ViewModel.DeviceModel.State = DeviceModel.DeviceState.On;
-                        break;
-                    case 1:
-                        OffRB.IsChecked = true;
-                        ViewModel.DeviceModel.State = DeviceModel.DeviceState.Off;
-                        break;
-                    case 2:
-                        StandByRB.IsChecked = true;
-                        ViewModel.DeviceModel.State = DeviceModel.DeviceState.StandBy;
-                        break;
-                    default:
-                        AlertRB.IsChecked = true;
-                        ViewModel.DeviceModel.State = DeviceModel.DeviceState.Alert;
-                        break;
-                }
+                OffRB.IsChecked = true;
+            }
+            else if (state.Equals("StandBy"))
+            {
+                StandByRB.IsChecked = true;
+            }
+            else if (state.Equals("Alert"))
+            {
+                AlertRB.IsChecked = true;
             }
 
             return DeviceClient.CompleteAsync("Properties updated");
         }
 
-        private Task<MethodResponse> OnMethodReceived(MethodRequest methodRequest, object userContext)
+        private async Task<MethodResponse> OnMethodReceived(MethodRequest methodRequest, object userContext)
         {
-            return null;
+            var receivedMessage = await DeviceClient.ReceiveAsync();
+            var methodName = methodRequest.Name;
+
+            ///do some method based on the name
+            ///
+
+            return new MethodResponse(200);
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
@@ -136,9 +127,33 @@ namespace IoTDevice
             }
         }
 
-        private void Send_Data(object sender, RoutedEventArgs e)
+        private async void Send_Data(object sender, RoutedEventArgs e)
         {
+            var twin = await DeviceClient.GetTwinAsync(); 
+            var reportedProperties = twin.Properties.Reported;
+            Message response = new Message();
+            response.Properties["batteryLevel"] = ViewModel.DeviceModel.BatteryLevel.ToString();
+            response.Properties["temperatureLevel"] = ViewModel.DeviceModel.BatteryLevel.ToString();
+            response.Properties["temperatureLevelOutside"] = ViewModel.DeviceModel.BatteryLevel.ToString();
 
+            if (OnRB.IsChecked.Value)
+            {
+                response.Properties["state"] = "On";
+            }
+            else if (OffRB.IsChecked.Value)
+            {
+                response.Properties["state"] = "Off";
+            }
+            else if (StandByRB.IsChecked.Value)
+            {
+                response.Properties["state"] = "StandBy";
+            }
+            else if (AlertRB.IsChecked.Value)
+            {
+                response.Properties["state"] = "Alert";
+            }
+            
+            await DeviceClient.UpdateReportedPropertiesAsync(reportedProperties);
         }
 
         private void Simulate_Low_Battery(object sender, RoutedEventArgs e)
